@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "260397323631",
+    "project_id": "savings-c1709",
+    "storage_bucket": "savings-c1709.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260397323631:android:a37efce479ea62874a449a",
+        "android_client_info": {
+          "package_name": "com.example.beu_savings"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClYIVFZ3e9udGS6WmwAo1H9_Zz_V6XXJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260397323631:android:de11dd68628af38f4a449a",
+        "android_client_info": {
+          "package_name": "com.example.saving"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClYIVFZ3e9udGS6WmwAo1H9_Zz_V6XXJI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

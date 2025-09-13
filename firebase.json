@@ -1,0 +1,21 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "savings-c1709",
+          "appId": "1:260397323631:android:a37efce479ea62874a449a",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "savings-c1709",
+          "configurations": {
+            "android": "1:260397323631:android:a37efce479ea62874a449a"
+          }
+        }
+      }
+    }
+  }
+}
