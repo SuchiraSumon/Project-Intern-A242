@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'confirmpay.dart';
 
 class AmountPage extends StatefulWidget {
   const AmountPage({super.key});
@@ -224,8 +225,16 @@ class _AmountPageState extends State<AmountPage> {
                       ),
                     ),
                     onPressed: () {
-                      debugPrint(
-                        "Next pressed with account $_selectedAccount and amount RM${_amountController.text}",
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ConfirmPayPage(
+                            amount: _amountController.text,
+                            nestName: "Pangkor",
+                            nestAccount: "1234567890",
+                            payFrom: _selectedAccount,
+                          ),
+                        ),
                       );
                     },
                   ),
