@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'main.dart'; // so we can reuse goalCard() and TravelProgress
+import 'main.dart'; //reuse goalCard() and TravelProgress
+import 'amount.dart';
 
 class NestPage extends StatelessWidget {
   const NestPage({super.key});
@@ -63,14 +64,25 @@ class NestPage extends StatelessWidget {
 
             Column(
               children: [
-                goalCard(
-                  "Pangkor",
-                  "RM 380",
-                  const TravelProgress(
-                    percent: 0.6,
-                    image: "lib/assets/images/travel.png",
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AmountPage(),
+                      ),
+                    );
+                  },
+                  child: goalCard(
+                    "Pangkor",
+                    "RM 380",
+                    const TravelProgress(
+                      percent: 0.6,
+                      image: "lib/assets/images/travel.png",
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 12),
                 goalCard(
                   "Car",
