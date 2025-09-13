@@ -68,6 +68,7 @@ flutter:
     - lib/assets/images/car.jpg
     - lib/assets/images/profile.jpg
     - lib/assets/images/travel.png
+    - lib/assets/images/medical.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

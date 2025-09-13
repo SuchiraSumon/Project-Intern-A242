@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'nest.dart';
 
 void main() {
   runApp(const MyApp());
@@ -141,14 +142,29 @@ class DiscoverPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // NEST HEADER
+            // NEST HEADER with navigation
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: const [
-                Text(
+              children: [
+                const Text(
                   "Nest",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                Text("View more", style: TextStyle(color: Colors.grey)),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const NestPage()),
+                    );
+                  },
+                  child: const Text(
+                    "View more",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
               ],
             ),
 
