@@ -1,11 +1,39 @@
+import 'package:beu_savings/models/user_model.dart';
 import 'package:beu_savings/screens/nest_page.dart';
+import 'package:beu_savings/services/firestore_user_service.dart';
+
 import 'package:beu_savings/widgets/custom_bottom_nav.dart';
 import 'package:beu_savings/widgets/day_progress_row.dart';
 import 'package:beu_savings/widgets/goal_card.dart';
+
+import 'package:beu_savings/models/nest_model.dart';
+
+import 'package:beu_savings/services/firestore_nest_service.dart';
+
 import 'package:flutter/material.dart';
 
-class DiscoverPage extends StatelessWidget {
+class DiscoverPage extends StatefulWidget {
   const DiscoverPage({super.key});
+
+  @override
+  State<DiscoverPage> createState() => _DiscoverPageState();
+}
+
+class _DiscoverPageState extends State<DiscoverPage> {
+  final FirestoreNestService nestService = FirestoreNestService();
+  // final String userId = "001"; // TODO: replace with FirebaseAuth user.uid
+
+  List<NestModel> _nests = [];
+  final FirestoreNestService _nestService = FirestoreNestService();
+  final FirestoreUserService _userService = FirestoreUserService();
+  final String userId = "001"; // 👈 replace with FirebaseAuth later
+
+  Future<void> _refresh() async {
+    final freshData = await nestService.refreshNests(userId);
+    setState(() {
+      _nests = freshData;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +58,10 @@ class DiscoverPage extends StatelessWidget {
         ],
       ),
 
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
           children: [
             // POINTS CARD
             Container(
@@ -69,42 +97,71 @@ class DiscoverPage extends StatelessWidget {
                       ),
                     ],
                   ),
+                  StreamBuilder<UserModel?>(
+                    stream: _userService.streamUser(
+                      userId,
+                    ), // 👈 only one stream
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                  const SizedBox(height: 12),
+                      if (snapshot.hasError) {
+                        return Text("Error: ${snapshot.error}");
+                      }
 
-                  const Text(
-                    "1,800",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
+                      final user = snapshot.data;
+                      if (user == null) {
+                        return const Text("User not found");
+                      }
 
-                  const SizedBox(height: 12),
+                      // ✅ Now you can use both points + dayStreak here
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 12),
 
-                  // Replaced: Day progress row (uses DayProgressRow)
-                  // Set completedDay to the number of days completed (1 shows only Day 1 completed)
-                  const DayProgressRow(completedDay: 1),
+                          Text(
+                            "${user.points}", // 👈 dynamically show Firestore points
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
 
-                  const SizedBox(height: 16),
+                          const SizedBox(height: 12),
 
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.pink,
-                      minimumSize: const Size(double.infinity, 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      "Claim (12 points)",
-                      style: TextStyle(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                          DayProgressRow(
+                            completedDay: user.dayStreak,
+                          ), // 👈 use streak
+
+                          const SizedBox(height: 16),
+
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.pink,
+                              minimumSize: const Size(double.infinity, 40),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              // maybe update Firestore here when claiming points?
+                            },
+                            child: Text(
+                              "Claim (${(user.points / 150).round()} points)", // 👈 reuse points again if needed
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 8),
-
                   OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 40),
@@ -126,7 +183,6 @@ class DiscoverPage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // NEST HEADER
-            // NEST HEADER with navigation
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -138,7 +194,7 @@ class DiscoverPage extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const NestPage()),
+                      MaterialPageRoute(builder: (context) => NestPage()),
                     );
                   },
                   child: const Text(
@@ -154,26 +210,58 @@ class DiscoverPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // LIST OF GOALS with Progress Circles
-            Column(
-              children: [
-                goalCard("Pangkor", 380, 210, "lib/assets/images/travel.png"),
-                const SizedBox(height: 12),
-                goalCard("Car", 3500, 1000, "lib/assets/images/car.jpg"),
-                const SizedBox(height: 12),
-                goalCard(
-                  "Birthday",
-                  300,
-                  250,
-                  "lib/assets/images/birthday.jpg",
-                ),
-              ],
+            // ✅ StreamBuilder directly here
+            StreamBuilder<List<NestModel>>(
+              stream: _nestService.getNests(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // 🟡 Show placeholder if no data
+                  return goalCard(
+                    context,
+                    "Placeholder Nest",
+                    1000,
+                    200,
+                    "https://via.placeholder.com/150",
+                  );
+                }
+
+                final activeNests = snapshot.data!
+                    .where((nest) => nest.active)
+                    .toList();
+
+                if (activeNests.isEmpty) {
+                  return const Text("No active nests found.");
+                }
+
+                // ✅ Just wrap in a Column so it plays nice inside ListView
+                return Column(
+                  children: activeNests.map((nest) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: goalCard(
+                        context,
+                        nest.name,
+                        nest.targetAmount,
+                        nest.currentAmount,
+                        nest.image,
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
             ),
           ],
         ),
       ),
 
-      // Bottom Navigation
       // Bottom Navigation
       bottomNavigationBar: CustomBottomNav(
         currentIndex: 2, // Discover is selected

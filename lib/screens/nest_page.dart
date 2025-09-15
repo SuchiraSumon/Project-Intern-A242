@@ -1,9 +1,18 @@
-import 'package:beu_savings/screens/amount_page.dart';
 import 'package:beu_savings/widgets/goal_card.dart';
 import 'package:flutter/material.dart';
 
+import 'package:beu_savings/models/nest_model.dart';
+
+import 'package:beu_savings/services/firestore_nest_service.dart';
+
 class NestPage extends StatelessWidget {
-  const NestPage({super.key});
+  NestPage({super.key});
+
+  final FirestoreNestService nestService = FirestoreNestService();
+
+  List<NestModel> _nests = [];
+  final FirestoreNestService _nestService = FirestoreNestService();
+  final String userId = "001"; // 👈 replace with FirebaseAuth later
 
   @override
   Widget build(BuildContext context) {
@@ -62,41 +71,52 @@ class NestPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AmountPage(),
+            StreamBuilder<List<NestModel>>(
+              stream: _nestService.getNests(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // 🟡 Show placeholder if no data
+                  return goalCard(
+                    context,
+                    "Placeholder Nest",
+                    1000,
+                    200,
+                    "https://via.placeholder.com/150",
+                  );
+                }
+
+                final activeNests = snapshot.data!
+                    .where((nest) => nest.active)
+                    .toList();
+
+                if (activeNests.isEmpty) {
+                  return const Text("No active nests found.");
+                }
+
+                // ✅ Just wrap in a Column so it plays nice inside ListView
+                return Column(
+                  children: activeNests.map((nest) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: goalCard(
+                        context,
+                        nest.name,
+                        nest.targetAmount,
+                        nest.currentAmount,
+                        nest.image,
                       ),
                     );
-                  },
-                  child: goalCard(
-                    "Pangkor",
-                    380,
-                    210,
-                    "lib/assets/images/travel.png",
-                  ),
-                ),
-                const SizedBox(height: 12),
-                goalCard("Car", 3500, 1000, "lib/assets/images/car.jpg"),
-                const SizedBox(height: 12),
-                goalCard(
-                  "Birthday",
-                  300,
-                  250,
-                  "lib/assets/images/birthday.jpg",
-                ),
-                const SizedBox(height: 12),
-                goalCard(
-                  "Family Day",
-                  500,
-                  250,
-                  "lib/assets/images/travel.png",
-                ),
-              ],
+                  }).toList(),
+                );
+              },
             ),
 
             const SizedBox(height: 24),
@@ -108,17 +128,53 @@ class NestPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            Column(
-              children: [
-                goalCard(
-                  "Medical Checkup",
-                  100,
-                  20,
-                  "lib/assets/images/medical.png",
-                ),
-                const SizedBox(height: 12),
-                goalCard("Emergency", 1000, 0, "lib/assets/images/medical.png"),
-              ],
+            StreamBuilder<List<NestModel>>(
+              stream: _nestService.getNests(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  // 🟡 Show placeholder if no data
+                  return goalCard(
+                    context,
+                    "Placeholder Nest",
+                    1000,
+                    200,
+                    "https://via.placeholder.com/150",
+                  );
+                }
+
+                // ✅ filter only paused nests
+                final pausedNests = snapshot.data!
+                    .where((nest) => !nest.active)
+                    .toList();
+
+                if (pausedNests.isEmpty) {
+                  return const Text("No paused nests found.");
+                }
+
+                // ✅ Just wrap in a Column so it plays nice inside ListView
+                return Column(
+                  children: pausedNests.map((nest) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: goalCard(
+                        context,
+                        nest.name,
+                        nest.targetAmount,
+                        nest.currentAmount,
+                        nest.image,
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
             ),
           ],
         ),

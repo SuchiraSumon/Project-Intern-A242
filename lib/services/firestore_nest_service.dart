@@ -4,37 +4,74 @@ import '../models/nest_model.dart';
 class FirestoreNestService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // CREATE or UPDATE Nest
-  Future<void> setNest(String userId, NestModel nest) async {
-    await _db
-        .collection('Users')
-        .doc(userId)
-        .collection('nests')
-        .doc(nest.id)
-        .set(nest.toMap());
-  }
-
-  // READ nests of a user
-  Stream<List<NestModel>> getNests(String userId) {
+  // helper to get the subcollection reference
+  CollectionReference<Map<String, dynamic>> nestsRef(String userId) {
     return _db
-        .collection('Users')
+        .collection('users')
         .doc(userId)
         .collection('nests')
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => NestModel.fromMap(doc.data(), doc.id))
-              .toList(),
+        .withConverter<Map<String, dynamic>>(
+          fromFirestore: (snap, _) => snap.data() ?? <String, dynamic>{},
+          toFirestore: (map, _) => map,
         );
   }
 
-  // DELETE a nest
-  Future<void> deleteNest(String userId, String nestId) async {
-    await _db
-        .collection('Users')
+  /// CREATE/UPDATE using provided nest.id
+  Future<void> setNest(String userId, NestModel nest) async {
+    await nestsRef(userId).doc(nest.id).set(nest.toMap());
+  }
+
+  /// CREATE with an auto-generated id. Returns the generated id.
+  Future<String> addNest(String userId, NestModel nest) async {
+    final docRef = nestsRef(userId).doc(); // auto id
+    await docRef.set(nest.toMap());
+    return docRef.id;
+  }
+
+  Future<List<NestModel>> refreshNests(String userId) async {
+    final snapshot = await _db
+        .collection('users')
         .doc(userId)
         .collection('nests')
-        .doc(nestId)
-        .delete();
+        .get(const GetOptions(source: Source.server));
+    return snapshot.docs
+        .map((doc) => NestModel.fromMap(doc.data(), doc.id))
+        .toList();
+  }
+
+  /// READ: stream of nests for a user
+  Stream<List<NestModel>> getNests(String userId) {
+    return _db
+        .collection('users')
+        .doc(userId)
+        .collection('nests')
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => NestModel.fromMap(doc.data(), doc.id))
+              .toList();
+        });
+  }
+
+  /// READ once (single document)
+  Future<NestModel?> getNestOnce(String userId, String nestId) async {
+    final doc = await nestsRef(userId).doc(nestId).get();
+    if (!doc.exists) return null;
+    final data = doc.data() as Map<String, dynamic>;
+    return NestModel.fromMap(data, doc.id);
+  }
+
+  /// UPDATE fields
+  Future<void> updateNest(
+    String userId,
+    String nestId,
+    Map<String, dynamic> updates,
+  ) async {
+    await nestsRef(userId).doc(nestId).update(updates);
+  }
+
+  /// DELETE
+  Future<void> deleteNest(String userId, String nestId) async {
+    await nestsRef(userId).doc(nestId).delete();
   }
 }

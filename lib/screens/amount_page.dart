@@ -2,7 +2,18 @@ import 'package:beu_savings/screens/confirm_pay_page.dart';
 import 'package:flutter/material.dart';
 
 class AmountPage extends StatefulWidget {
-  const AmountPage({super.key});
+  final String title;
+  final double targetAmount;
+  final double currentAmount;
+  final String imageUrl;
+
+  const AmountPage({
+    super.key,
+    required this.title,
+    required this.targetAmount,
+    required this.currentAmount,
+    required this.imageUrl,
+  });
 
   @override
   State<AmountPage> createState() => _AmountPageState();
@@ -71,22 +82,30 @@ class _AmountPageState extends State<AmountPage> {
 
           // Nest icon + name + account
           Column(
-            children: const [
+            children: [
               CircleAvatar(
                 radius: 28,
                 backgroundColor: Colors.pinkAccent,
                 child: CircleAvatar(
                   radius: 26,
                   backgroundColor: Colors.white,
-                  backgroundImage: AssetImage("lib/assets/images/travel.png"),
+                  backgroundImage: widget.imageUrl.startsWith("http")
+                      ? NetworkImage(widget.imageUrl) as ImageProvider
+                      : AssetImage(widget.imageUrl),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
-                "Pangkor",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                widget.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-              Text("1234567890", style: TextStyle(color: Colors.black54)),
+              Text(
+                "Nest target: RM${widget.targetAmount.toStringAsFixed(2)}",
+                style: const TextStyle(color: Colors.black54),
+              ),
             ],
           ),
 
@@ -148,7 +167,7 @@ class _AmountPageState extends State<AmountPage> {
                       ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
-                        value: _selectedAccount,
+                        initialValue: _selectedAccount,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 20,
@@ -230,8 +249,9 @@ class _AmountPageState extends State<AmountPage> {
                         MaterialPageRoute(
                           builder: (context) => ConfirmPayPage(
                             amount: _amountController.text,
-                            nestName: "Pangkor",
-                            nestAccount: "1234567890",
+                            nestName: widget.title,
+                            nestAccount:
+                                "1234567890", // keep static for now, or make dynamic later
                             payFrom: _selectedAccount,
                           ),
                         ),

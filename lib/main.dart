@@ -1,4 +1,5 @@
 import 'package:beu_savings/screens/discover_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -8,6 +9,10 @@ Future<void> main() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    );
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: false, // ✅ disables offline persistence
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
     print("Firebase Initialised");
   } catch (e) {
@@ -25,7 +30,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false, // hides the red debug banner
       title: 'Discover Page Demo',
       theme: ThemeData(primarySwatch: Colors.pink),
-      home: const DiscoverPage(), // ✅ directly open DiscoverPage
+      home: DiscoverPage(), // ✅ directly open DiscoverPage
     );
   }
 }

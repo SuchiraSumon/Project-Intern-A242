@@ -59,4 +59,5 @@ class DefaultFirebaseOptions {
     projectId: 'savings-c1709',
     storageBucket: 'savings-c1709.firebasestorage.app',
   );
+
 }
