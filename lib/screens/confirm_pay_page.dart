@@ -1,5 +1,5 @@
+import 'package:beu_savings/screens/receipt_page.dart';
 import 'package:flutter/material.dart';
-import 'receipt.dart';
 
 class ConfirmPayPage extends StatelessWidget {
   final String amount;

@@ -1,5 +1,5 @@
+import 'package:beu_savings/screens/confirm_pay_page.dart';
 import 'package:flutter/material.dart';
-import 'confirmpay.dart';
 
 class AmountPage extends StatefulWidget {
   const AmountPage({super.key});

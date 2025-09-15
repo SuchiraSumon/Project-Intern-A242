@@ -1,6 +1,6 @@
+import 'package:beu_savings/screens/amount_page.dart';
+import 'package:beu_savings/widgets/goal_card.dart';
 import 'package:flutter/material.dart';
-import 'main.dart'; //reuse goalCard() and TravelProgress
-import 'amount.dart';
 
 class NestPage extends StatelessWidget {
   const NestPage({super.key});
@@ -75,40 +75,26 @@ class NestPage extends StatelessWidget {
                   },
                   child: goalCard(
                     "Pangkor",
-                    "RM 380",
-                    const TravelProgress(
-                      percent: 0.6,
-                      image: "lib/assets/images/travel.png",
-                    ),
+                    380,
+                    210,
+                    "lib/assets/images/travel.png",
                   ),
                 ),
-
                 const SizedBox(height: 12),
-                goalCard(
-                  "Car",
-                  "RM 3500",
-                  const TravelProgress(
-                    percent: 0.3,
-                    image: "lib/assets/images/car.jpg",
-                  ),
-                ),
+                goalCard("Car", 3500, 1000, "lib/assets/images/car.jpg"),
                 const SizedBox(height: 12),
                 goalCard(
                   "Birthday",
-                  "RM 300",
-                  const TravelProgress(
-                    percent: 0.9,
-                    image: "lib/assets/images/birthday.jpg",
-                  ),
+                  300,
+                  250,
+                  "lib/assets/images/birthday.jpg",
                 ),
                 const SizedBox(height: 12),
                 goalCard(
                   "Family Day",
-                  "RM 500",
-                  const TravelProgress(
-                    percent: 0.5,
-                    image: "lib/assets/images/travel.png",
-                  ),
+                  500,
+                  250,
+                  "lib/assets/images/travel.png",
                 ),
               ],
             ),
@@ -126,21 +112,12 @@ class NestPage extends StatelessWidget {
               children: [
                 goalCard(
                   "Medical Checkup",
-                  "RM 100",
-                  const TravelProgress(
-                    percent: 0.2,
-                    image: "lib/assets/images/medical.png",
-                  ),
+                  100,
+                  20,
+                  "lib/assets/images/medical.png",
                 ),
                 const SizedBox(height: 12),
-                goalCard(
-                  "Emergency",
-                  "RM 0",
-                  const TravelProgress(
-                    percent: 0.0,
-                    image: "lib/assets/images/medical.png",
-                  ),
-                ),
+                goalCard("Emergency", 1000, 0, "lib/assets/images/medical.png"),
               ],
             ),
           ],
