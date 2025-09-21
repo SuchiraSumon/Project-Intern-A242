@@ -74,4 +74,24 @@ class FirestoreNestService {
   Future<void> deleteNest(String userId, String nestId) async {
     await nestsRef(userId).doc(nestId).delete();
   }
+
+  Future<void> updateNestAmount({
+    required String nestName,
+    required double addedAmount,
+  }) async {
+    final nestsRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc('001') // Replace with actual userId
+        .collection('nests');
+
+    final query = await nestsRef.where('name', isEqualTo: nestName).get();
+
+    if (query.docs.isNotEmpty) {
+      final doc = query.docs.first;
+      final currentAmount = (doc['current_amount'] ?? 0).toDouble();
+      await doc.reference.update({
+        'current_amount': currentAmount + addedAmount,
+      });
+    }
+  }
 }

@@ -1,5 +1,11 @@
+import 'package:beu_savings/models/transfer_model.dart';
+import 'package:beu_savings/models/user_model.dart';
 import 'package:beu_savings/screens/receipt_page.dart';
+import 'package:beu_savings/services/firestore_nest_service.dart';
+import 'package:beu_savings/services/firestore_transfer_service.dart';
+import 'package:beu_savings/services/firestore_user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class ConfirmPayPage extends StatelessWidget {
   final String amount;
@@ -7,13 +13,50 @@ class ConfirmPayPage extends StatelessWidget {
   final String nestAccount;
   final String payFrom;
 
-  const ConfirmPayPage({
+  final FirestoreNestService nestService = FirestoreNestService();
+  final FirestoreTransferService transferService = FirestoreTransferService();
+  final FirestoreUserService userService = FirestoreUserService();
+
+  ConfirmPayPage({
     super.key,
     required this.amount,
     required this.nestName,
     required this.nestAccount,
     required this.payFrom,
   });
+
+  Future<void> handleTransfer(String userId) async {
+    final now = DateTime.now();
+
+    // CHECK first (before saving the new transfer)
+    final transferredRecently = await transferService
+        .hasTransferredInLast24Hours(userId);
+
+    if (!transferredRecently) {
+      // atomic increment is nicer — but this simple update works.
+      await userService.incrementDayStreak(
+        userId,
+      ); // see next block for this helper
+    }
+
+    // Now save the transfer (so it won't affect the check we already did)
+    final transferId = const Uuid().v4();
+    final transfer = TransferModel(
+      id: transferId,
+      datetime: now,
+      transferType: 'duitNow',
+    );
+    await transferService.setTransfer(userId, transfer);
+  }
+
+  Future<void> _transferToNest() async {
+    final double amt = double.tryParse(amount) ?? 0;
+
+    if (amt <= 0) return;
+
+    // Call Firestore service to update the nest's current_amount
+    await nestService.updateNestAmount(nestName: nestName, addedAmount: amt);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +187,12 @@ class ConfirmPayPage extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
             width: double.infinity,
             child: GestureDetector(
-              onHorizontalDragEnd: (_) {
+              onHorizontalDragEnd: (_) async {
+                // 1️⃣ Update Nest amount
+                await handleTransfer("001");
+                // await _transferToNest();
+
+                // 2️⃣ Navigate to receipt page
                 debugPrint("Transfer confirmed!");
                 Navigator.pushReplacement(
                   context,

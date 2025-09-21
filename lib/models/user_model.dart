@@ -1,10 +1,12 @@
 class UserModel {
+  final bool claimed;
   final String id;
   final String name;
   final int points;
   final int dayStreak;
 
   UserModel({
+    required this.claimed,
     required this.id,
     required this.name,
     required this.points,
@@ -13,6 +15,7 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> data, String id) {
     return UserModel(
+      claimed: data['claimed'],
       id: id,
       name: data['name'] ?? '',
       points: data['points'] ?? 0,

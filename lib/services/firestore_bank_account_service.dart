@@ -7,7 +7,7 @@ class FirestoreBankAccountService {
   // CREATE or UPDATE bank account
   Future<void> setBankAccount(String userId, BankAccountModel bank) async {
     await _db
-        .collection('Users')
+        .collection('users')
         .doc(userId)
         .collection('bank_accounts')
         .doc(bank.id)
@@ -17,7 +17,7 @@ class FirestoreBankAccountService {
   // READ bank accounts for a user
   Stream<List<BankAccountModel>> getBankAccounts(String userId) {
     return _db
-        .collection('Users')
+        .collection('users')
         .doc(userId)
         .collection('bank_accounts')
         .snapshots()
@@ -31,7 +31,7 @@ class FirestoreBankAccountService {
   // DELETE bank account
   Future<void> deleteBankAccount(String userId, String bankId) async {
     await _db
-        .collection('Users')
+        .collection('users')
         .doc(userId)
         .collection('bank_accounts')
         .doc(bankId)

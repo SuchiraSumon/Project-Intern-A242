@@ -149,7 +149,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
                               // maybe update Firestore here when claiming points?
                             },
                             child: Text(
-                              "Claim (${(user.points / 150).round()} points)", // 👈 reuse points again if needed
+                              "Claim (12 points)", // 👈 reuse points again if needed
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

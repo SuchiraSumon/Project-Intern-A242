@@ -10,7 +10,7 @@ class NestPage extends StatelessWidget {
 
   final FirestoreNestService nestService = FirestoreNestService();
 
-  List<NestModel> _nests = [];
+  // List<NestModel> _nests = [];
   final FirestoreNestService _nestService = FirestoreNestService();
   final String userId = "001"; // 👈 replace with FirebaseAuth later
 

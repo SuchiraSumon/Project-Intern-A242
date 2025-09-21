@@ -44,4 +44,12 @@ class FirestoreUserService {
   Future<void> deleteUser(String id) async {
     await _db.collection('users').doc(id).delete();
   }
+
+  /// increment the user's day_streak by 1 (atomic)
+  Future<void> incrementDayStreak(String userId) async {
+    await _db.collection('users').doc(userId).update({
+      'day_streak': FieldValue.increment(1),
+      'claimed': false,
+    });
+  }
 }
