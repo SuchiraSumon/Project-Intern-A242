@@ -190,7 +190,7 @@ class ConfirmPayPage extends StatelessWidget {
               onHorizontalDragEnd: (_) async {
                 // 1️⃣ Update Nest amount
                 await handleTransfer("001");
-                // await _transferToNest();
+                await _transferToNest();
 
                 // 2️⃣ Navigate to receipt page
                 debugPrint("Transfer confirmed!");

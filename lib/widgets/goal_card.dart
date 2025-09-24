@@ -45,7 +45,7 @@ Widget goalCard(
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
               Text(
-                "RM${targetAmount.toStringAsFixed(2)}",
+                "RM${currentAmount.toStringAsFixed(2)} (${(currentAmount / targetAmount * 100).toStringAsFixed(0)}%) ",
                 style: const TextStyle(color: Colors.black54),
               ),
             ],

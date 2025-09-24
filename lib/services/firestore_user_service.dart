@@ -52,4 +52,12 @@ class FirestoreUserService {
       'claimed': false,
     });
   }
+
+  //Claim points
+  Future<void> incrementPoints(String userId) async {
+    await _db.collection('users').doc(userId).update({
+      'points': FieldValue.increment(12),
+      'claimed': true,
+    });
+  }
 }
